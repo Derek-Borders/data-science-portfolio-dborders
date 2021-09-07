@@ -1,0 +1,141 @@
+---
+title: "CSCI 385 - Introduction to Data Science"
+subtitle: "Introduction to R"
+author: "Derek Borders"
+date: "Last compiled on `r format(Sys.time(), '%m/%d/%y')`"
+output: 
+    html_document:
+        theme: sandstone        # Reduces eye strain
+        #toc: true               # Table of contents
+        #toc_float: true         # ^ in a sidebar
+        code_folding: show      # Collapsable code chunks
+        code_download: true     # Page contains code for reader to examine
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)          # default
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(comment=NA)
+options(digits = 2)
+
+library(Rcpp)                        # for Cpp
+```
+
+
+
+
+# {.tabset .tabset-fade .tabset-pills} 
+
+Solve the given problems from scratch and test each solution with 3-5 simple test cases showing that the solution behaves as expected. Target important edge cases.
+
+##  {}
+
+### Sum of Multiples  
+
+*(5 pts) Write a function sum_mults(nums, n) that returns the sum of all multiples of values in the vector nums less than n. For example, sum_mults(c(3,5), 30) should return 195. Assume that the elements of nums are positive integers.*
+
+```{r}
+
+```
+
+
+##  {}
+
+### Collatz Conjecture 
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Reverse
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Drop
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Intersect
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Filter
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Fibonacci
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Shift Right
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Remove Consecutive Dupes
+
+
+```{r}
+
+```
+
+
+
+##  {}
+
+### Even Fibonacci
+
+
+```{r}
+
+```
+
+
