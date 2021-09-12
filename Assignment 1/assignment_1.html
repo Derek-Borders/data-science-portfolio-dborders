@@ -209,78 +209,184 @@ summary {
 <h1 class="title toc-ignore">CSCI 385 - Introduction to Data Science</h1>
 <h3 class="subtitle">Introduction to R</h3>
 <h4 class="author">Derek Borders</h4>
-<h4 class="date">Last compiled on 09/02/21</h4>
+<h4 class="date">Last compiled on 09/09/21</h4>
 
 </div>
 
 
-<!--pandoc --shift-heading-level-by=1 -->
-<div id="section" class="section level1 unnumbered tabset tabset-fade tabset-pills">
-<h1 class="unnumbered tabset tabset-fade tabset-pills"></h1>
+<div id="section" class="section level1 tabset tabset-fade tabset-pills">
+<h1 class="tabset tabset-fade tabset-pills"></h1>
 <p>Solve the given problems from scratch and test each solution with 3-5 simple test cases showing that the solution behaves as expected. Target important edge cases.</p>
-<div id="section-1" class="section level2" number="0.1">
-<h2 number="0.1"><span class="header-section-number">0.1</span> </h2>
-<div id="sum-of-multiples" class="section level3 unnumbered">
-<h3 class="unnumbered">Sum of Multiples</h3>
+<div id="section-1" class="section level2">
+<h2>1</h2>
+<div id="sum-of-multiples" class="section level3">
+<h3>Sum of Multiples</h3>
+<p>(5 pts) Write a function <code>sum_mults(nums, n)</code> that returns the sum of all multiples of values in the vector <code>nums</code> less than <code>n</code>. For example, <code>sum_mults(c(3,5), 30)</code> should return <code>195</code>. Assume that the elements of <code>nums</code> are positive.</p>
+</div>
+<div id="solution" class="section level3">
+<h3>Solution</h3>
+<p>The naive solution here will be to use nested loops to iterate over a sequence from 1 to n and add any value which is a multiple of any value in num.</p>
+<pre class="r"><code># Naive Solution (nested loop)
+
+sum_mults &lt;- function(nums, n) {
+    if (n&lt;1){return(0)}
+    sum &lt;- 0
+    for (i in 1:n-1){
+        for (num in nums){
+            if (i %% num == 0){
+                sum &lt;- sum + i
+                break
+            }
+        }
+    }
+    return(sum)
+}</code></pre>
+</div>
+<div id="testing" class="section level3">
+<h3>Testing</h3>
+<p>For test cases, we will first test the given example: <code>sum_mults(c(3,5), 30)</code>. This is a good test because one possible failure condition would be adding multiples of more than one factor more than once (15 would be counted twice for 210).</p>
+<pre class="r"><code>sum_mults(c(3,5), 30) # Expect 195</code></pre>
+<pre><code>[1] 195</code></pre>
+<p>Next, we will test a case with no multiples by choosing <code>nums</code> which are greater than the chosen limit.</p>
+<pre class="r"><code>sum_mults(c(101,102), 30) # Expect 0</code></pre>
+<pre><code>[1] 0</code></pre>
+<p>Next, we will test a vector with duplicate values, though this shouldn’t raise any new failure conditions, but we want to be sure duplicates don’t break it in an unforseen way.</p>
+<pre class="r"><code>sum_mults(c(3, 3, 5), 31) # Expect 225</code></pre>
+<pre><code>[1] 225</code></pre>
+<p>Next, we will check what happens when we pass in an empty vector.</p>
+<pre class="r"><code>sum_mults(c(NULL), 30) # Expect 0</code></pre>
+<pre><code>[1] 0</code></pre>
+<p>Next, we will test passing a limit that is less than 1.</p>
+<pre class="r"><code>sum_mults(c(3,5), -30) # Expect 0</code></pre>
+<pre><code>[1] 0</code></pre>
 </div>
 </div>
-<div id="section-2" class="section level2" number="0.2">
-<h2 number="0.2"><span class="header-section-number">0.2</span> </h2>
-<div id="collatz-conjecture" class="section level3 unnumbered">
-<h3 class="unnumbered">Collatz Conjecture</h3>
+<div id="section-2" class="section level2">
+<h2>2</h2>
+<div id="collatz-conjecture" class="section level3">
+<h3>Collatz Conjecture</h3>
+<p>(5 pts) Given any positive integer n, define</p>
+<p><span class="math display">\[ 
+    f(n) :=
+    \begin{cases} 
+      n/2, &amp; \verb|if |n \verb| is even| \\
+      3n+1, &amp; \verb|if |n \verb| is odd|
+   \end{cases}
+\]</span></p>
+<p>The <a href="https://en.wikipedia.org/wiki/Collatz_conjecture">Collatz conjecture</a> states that the sequence</p>
+<p><span class="math display">\[ 
+    a_i :=
+    \begin{cases} 
+      n, &amp; \verb|if |i=1\\
+      f(a_\verb|i-1|), &amp; \verb|if |i&gt;1
+   \end{cases}
+\]</span></p>
+<p>eventually reaches 1. Write a function <code>collatz_len(n)</code> that determines the first <span class="math inline">\(i\)</span> for which <span class="math inline">\(a_i=1\)</span> for a given <span class="math inline">\(n\)</span>.</p>
+<p>For example, when <span class="math inline">\(n=17\)</span>, the sequence <span class="math inline">\(a_i\)</span> begins <span class="math inline">\(17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1, ...\)</span> and <span class="math inline">\(a_13 = 1\)</span>. Thus, <code>collatz_len(17)</code> should return <del>13</del> 12.</p>
+</div>
+<div id="solution-1" class="section level3">
+<h3>Solution</h3>
+<p>First, we will write the function itself, and call it <code>next.num()</code>.</p>
+<pre class="r"><code># The inner function
+next.num &lt;- function(n){
+    if (n %% 2){
+        return(3*n+1)
+    }else{
+        return(n/2)
+    }
+}</code></pre>
+<p>We can quickly test <code>next.num()</code> with 4 and 3 to check that it works for odd and even numbers.</p>
+<pre class="r"><code>next.num(4) # Expect 2</code></pre>
+<pre><code>[1] 2</code></pre>
+<pre class="r"><code>next.num(3) # Expect 10</code></pre>
+<pre><code>[1] 10</code></pre>
+<p>Next, we build the function to determine a number’s Collatz Length (or height).</p>
+<pre class="r"><code>collatz_len &lt;- function(n){
+    if (n&lt;1){return(-1)}
+    num &lt;- n
+    c.len &lt;- 0
+    while (num &gt; 1){
+        num &lt;- next.num(num)
+        c.len &lt;- c.len + 1
+    }
+    return(c.len)
+}
+
+# collatz_len(943)</code></pre>
+</div>
+<div id="testing-1" class="section level3">
+<h3>Testing</h3>
+<p>For testing, we will again start with the given example. For the Collatz Length of 17, we expect <del>13</del> 12 and we get: 12</p>
+<p>Next, we will test a number with a known Collatz Height from a table in an interesting <a href="https://www.sciencedirect.com/science/article/pii/0012365X9390240T?via%3Dihub">paper</a> I came across that explores the interesting phenomenon of stretches of numbers with identical Collatz Heights. The first such stretch listed is the seven numbers starting with 943 which all have a height of 36.</p>
+<p>Running our implementation on 943, we get a height of 36 as expected.</p>
+<p>Next we will test for known invalid inputs, 0 or a negative number. We have written this implementation to return -1 for these cases so we expect this result. For 0, we get -1, for -10 we get -1.</p>
+<p>Finally, we will test the first 91 positive integers against a known list found <a href="https://oeis.org/A006577/list">here</a>.</p>
+<pre class="r"><code># Known list
+known72 &lt;- c(0,1,7,2,5,8,16,3,19,6,14,9,9,17,17,4,12,20,20,7, 7,15,15,10,23,10,111,18,18,18,106,5,26,13,13,21, 21,21,34,8,109,8,29,16,16,16,104,11,24,24,24,11, 11,112,112,19,32,19,32,19,19,107,107,6,27,27,27, 14,14,14,102,22)
+
+# Test list
+test72 &lt;- rep(0, 72)                # Initialize vector of 0s
+for (i in 1:72){                    # Loop through integers to 72
+    test72[i] &lt;- collatz_len(i)     # Store height for each integer
+}    
+
+# Compare lists
+success &lt;- identical(test72, known72)
+success</code></pre>
+<pre><code>[1] TRUE</code></pre>
 </div>
 </div>
-<div id="section-3" class="section level2" number="0.3">
-<h2 number="0.3"><span class="header-section-number">0.3</span> </h2>
-<div id="reverse" class="section level3 unnumbered">
-<h3 class="unnumbered">Reverse</h3>
+<div id="section-3" class="section level2">
+<h2>3</h2>
+<div id="reverse" class="section level3">
+<h3>Reverse</h3>
 </div>
 </div>
-<div id="section-4" class="section level2" number="0.4">
-<h2 number="0.4"><span class="header-section-number">0.4</span> </h2>
-<div id="drop" class="section level3 unnumbered">
-<h3 class="unnumbered">Drop</h3>
+<div id="section-4" class="section level2">
+<h2>4</h2>
+<div id="drop" class="section level3">
+<h3>Drop</h3>
 </div>
 </div>
-<div id="section-5" class="section level2" number="0.5">
-<h2 number="0.5"><span class="header-section-number">0.5</span> </h2>
-<div id="intersect" class="section level3 unnumbered">
-<h3 class="unnumbered">Intersect</h3>
+<div id="section-5" class="section level2">
+<h2>5</h2>
+<div id="intersect" class="section level3">
+<h3>Intersect</h3>
 </div>
 </div>
-<div id="section-6" class="section level2" number="0.6">
-<h2 number="0.6"><span class="header-section-number">0.6</span> </h2>
-<div id="filter" class="section level3 unnumbered">
-<h3 class="unnumbered">Filter</h3>
+<div id="section-6" class="section level2">
+<h2>6</h2>
+<div id="filter" class="section level3">
+<h3>Filter</h3>
 </div>
 </div>
-<div id="section-7" class="section level2" number="0.7">
-<h2 number="0.7"><span class="header-section-number">0.7</span> </h2>
-<div id="fibonacci" class="section level3 unnumbered">
-<h3 class="unnumbered">Fibonacci</h3>
+<div id="section-7" class="section level2">
+<h2>7</h2>
+<div id="fibonacci" class="section level3">
+<h3>Fibonacci</h3>
 </div>
 </div>
-<div id="section-8" class="section level2" number="0.8">
-<h2 number="0.8"><span class="header-section-number">0.8</span> </h2>
-<div id="shift-right" class="section level3 unnumbered">
-<h3 class="unnumbered">Shift Right</h3>
+<div id="section-8" class="section level2">
+<h2>8</h2>
+<div id="shift-right" class="section level3">
+<h3>Shift Right</h3>
 </div>
 </div>
-<div id="section-9" class="section level2" number="0.9">
-<h2 number="0.9"><span class="header-section-number">0.9</span> </h2>
-<div id="remove-consecutive-dupes" class="section level3 unnumbered">
-<h3 class="unnumbered">Remove Consecutive Dupes</h3>
+<div id="section-9" class="section level2">
+<h2>9</h2>
+<div id="remove-consecutive-dupes" class="section level3">
+<h3>Remove Consecutive Dupes</h3>
 </div>
 </div>
-<div id="section-10" class="section level2" number="0.10">
-<h2 number="0.10"><span class="header-section-number">0.10</span> </h2>
-<div id="even-fibonacci" class="section level3 unnumbered">
-<h3 class="unnumbered">Even Fibonacci</h3>
+<div id="section-10" class="section level2">
+<h2>10</h2>
+<div id="even-fibonacci" class="section level3">
+<h3>Even Fibonacci</h3>
 </div>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNTQ0kgMzg1IC0gSW50cm9kdWN0aW9uIHRvIERhdGEgU2NpZW5jZSINCnN1YnRpdGxlOiAiSW50cm9kdWN0aW9uIHRvIFIiDQphdXRob3I6ICJEZXJlayBCb3JkZXJzIg0KZGF0ZTogIkxhc3QgY29tcGlsZWQgb24gYHIgZm9ybWF0KFN5cy50aW1lKCksICclbS8lZC8leScpYCINCm91dHB1dDogDQogICAgaHRtbF9kb2N1bWVudDoNCiAgICAgICAgdGhlbWU6IHNhbmRzdG9uZSAgICAgICAgIyBSZWR1Y2VzIGV5ZSBzdHJhaW4NCiAgICAgICAgI3RvYzogdHJ1ZSAgICAgICAgICAgICAgICMgVGFibGUgb2YgY29udGVudHMNCiAgICAgICAgI3RvY19mbG9hdDogdHJ1ZSAgICAgICAgICMgXiBpbiBhIHNpZGViYXINCiAgICAgICAgY29kZV9mb2xkaW5nOiBzaG93ICAgICAgIyBDb2xsYXBzYWJsZSBjb2RlIGNodW5rcw0KICAgICAgICBjb2RlX2Rvd25sb2FkOiB0cnVlICAgICAjIFBhZ2UgY29udGFpbnMgY29kZSBmb3IgcmVhZGVyIHRvIGV4YW1pbmUNCiAgICAgICAgbnVtYmVyX3NlY3Rpb25zOiB0cnVlDQogICAgICAgIA0KLS0tDQoNCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQ0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGVjaG8gPSBUUlVFKSAgICAgICAgICAjIGRlZmF1bHQNCmtuaXRyOjpvcHRzX2NodW5rJHNldChtZXNzYWdlID0gRkFMU0UpDQprbml0cjo6b3B0c19jaHVuayRzZXQod2FybmluZyA9IEZBTFNFKQ0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGNvbW1lbnQ9TkEpDQpvcHRpb25zKGRpZ2l0cyA9IDIpDQoNCmxpYnJhcnkoZ2dwbG90MikgICAgICAgICAgICAgICAgICAgICAgICAjIGJyZWFkIGFuZCBidXR0ZXINCmBgYA0KDQo8IS0tcGFuZG9jIC0tc2hpZnQtaGVhZGluZy1sZXZlbC1ieT0xIC0tPg0KDQojIHstIC50YWJzZXQgLnRhYnNldC1mYWRlIC50YWJzZXQtcGlsbHN9IA0KDQpTb2x2ZSB0aGUgZ2l2ZW4gcHJvYmxlbXMgZnJvbSBzY3JhdGNoIGFuZCB0ZXN0IGVhY2ggc29sdXRpb24gd2l0aCAzLTUgc2ltcGxlIHRlc3QgY2FzZXMgc2hvd2luZyB0aGF0IHRoZSBzb2x1dGlvbiBiZWhhdmVzIGFzIGV4cGVjdGVkLiBUYXJnZXQgaW1wb3J0YW50IGVkZ2UgY2FzZXMuDQoNCiMjICB7fQ0KDQojIyMgU3VtIG9mIE11bHRpcGxlc3stfSAgDQoNCiMjICB7fQ0KDQojIyMgQ29sbGF0eiBDb25qZWN0dXJlIHstfQ0KDQoNCiMjICB7fQ0KDQojIyMgUmV2ZXJzZXstfQ0KDQoNCiMjICB7fQ0KDQojIyMgRHJvcHstfQ0KDQoNCiMjICB7fQ0KDQojIyMgSW50ZXJzZWN0ey19DQoNCg0KIyMgIHt9DQoNCiMjIyBGaWx0ZXJ7LX0NCg0KDQojIyAge30NCg0KIyMjIEZpYm9uYWNjaXstfQ0KDQoNCiMjICB7fQ0KDQojIyMgU2hpZnQgUmlnaHR7LX0NCg0KDQojIyAge30NCg0KIyMjIFJlbW92ZSBDb25zZWN1dGl2ZSBEdXBlc3stfQ0KDQoNCiMjICB7fQ0KDQojIyMgRXZlbiBGaWJvbmFjY2l7LX0NCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNTQ0kgMzg1IC0gSW50cm9kdWN0aW9uIHRvIERhdGEgU2NpZW5jZSINCnN1YnRpdGxlOiAiSW50cm9kdWN0aW9uIHRvIFIiDQphdXRob3I6ICJEZXJlayBCb3JkZXJzIg0KZGF0ZTogIkxhc3QgY29tcGlsZWQgb24gYHIgZm9ybWF0KFN5cy50aW1lKCksICclbS8lZC8leScpYCINCm91dHB1dDogDQogICAgaHRtbF9kb2N1bWVudDoNCiAgICAgICAgdGhlbWU6IHNhbmRzdG9uZSAgICAgICAgIyBSZWR1Y2VzIGV5ZSBzdHJhaW4NCiAgICAgICAgI3RvYzogdHJ1ZSAgICAgICAgICAgICAgICMgVGFibGUgb2YgY29udGVudHMNCiAgICAgICAgI3RvY19mbG9hdDogdHJ1ZSAgICAgICAgICMgXiBpbiBhIHNpZGViYXINCiAgICAgICAgY29kZV9mb2xkaW5nOiBzaG93ICAgICAgIyBDb2xsYXBzYWJsZSBjb2RlIGNodW5rcw0KICAgICAgICBjb2RlX2Rvd25sb2FkOiB0cnVlICAgICAjIFBhZ2UgY29udGFpbnMgY29kZSBmb3IgcmVhZGVyIHRvIGV4YW1pbmUNCg0KLS0tDQoNCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQ0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGVjaG8gPSBUUlVFKSAjIGRlZmF1bHQNCmtuaXRyOjpvcHRzX2NodW5rJHNldChtZXNzYWdlID0gRkFMU0UpDQprbml0cjo6b3B0c19jaHVuayRzZXQod2FybmluZyA9IEZBTFNFKQ0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGNvbW1lbnQgPSBOQSkNCm9wdGlvbnMoZGlnaXRzID0gMikNCg0KbGlicmFyeShSY3BwKSAjIGZvciBDcHANCmBgYA0KDQoNCg0KDQojIHsudGFic2V0IC50YWJzZXQtZmFkZSAudGFic2V0LXBpbGxzfSANCg0KU29sdmUgdGhlIGdpdmVuIHByb2JsZW1zIGZyb20gc2NyYXRjaCBhbmQgdGVzdCBlYWNoIHNvbHV0aW9uIHdpdGggMy01IHNpbXBsZSB0ZXN0IGNhc2VzIHNob3dpbmcgdGhhdCB0aGUgc29sdXRpb24gYmVoYXZlcyBhcyBleHBlY3RlZC4gVGFyZ2V0IGltcG9ydGFudCBlZGdlIGNhc2VzLg0KDQojIyAxIHt9DQoNCiMjIyBTdW0gb2YgTXVsdGlwbGVzICANCg0KKDUgcHRzKSBXcml0ZSBhIGZ1bmN0aW9uIGBzdW1fbXVsdHMobnVtcywgbilgIHRoYXQgcmV0dXJucyB0aGUgc3VtIG9mIGFsbCBtdWx0aXBsZXMgb2YgdmFsdWVzIGluIHRoZSB2ZWN0b3IgYG51bXNgIGxlc3MgdGhhbiBgbmAuIEZvciBleGFtcGxlLCBgc3VtX211bHRzKGMoMyw1KSwgMzApYCBzaG91bGQgcmV0dXJuIGAxOTVgLiBBc3N1bWUgdGhhdCB0aGUgZWxlbWVudHMgb2YgYG51bXNgIGFyZSBwb3NpdGl2ZS4gDQoNCiMjIyBTb2x1dGlvbg0KDQpUaGUgbmFpdmUgc29sdXRpb24gaGVyZSB3aWxsIGJlIHRvIHVzZSBuZXN0ZWQgbG9vcHMgdG8gaXRlcmF0ZSBvdmVyIGEgc2VxdWVuY2UgZnJvbSAxIHRvIG4gYW5kIGFkZCBhbnkgdmFsdWUgd2hpY2ggaXMgYSBtdWx0aXBsZSBvZiBhbnkgdmFsdWUgaW4gbnVtLg0KDQpgYGB7cn0NCiMgTmFpdmUgU29sdXRpb24gKG5lc3RlZCBsb29wKQ0KDQpzdW1fbXVsdHMgPC0gZnVuY3Rpb24obnVtcywgbikgew0KICAgIGlmIChuPDEpe3JldHVybigwKX0NCiAgICBzdW0gPC0gMA0KICAgIGZvciAoaSBpbiAxOm4tMSl7DQogICAgICAgIGZvciAobnVtIGluIG51bXMpew0KICAgICAgICAgICAgaWYgKGkgJSUgbnVtID09IDApew0KICAgICAgICAgICAgICAgIHN1bSA8LSBzdW0gKyBpDQogICAgICAgICAgICAgICAgYnJlYWsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgIH0NCiAgICByZXR1cm4oc3VtKQ0KfQ0KYGBgICANCg0KIyMjIFRlc3RpbmcNCg0KRm9yIHRlc3QgY2FzZXMsIHdlIHdpbGwgZmlyc3QgdGVzdCB0aGUgZ2l2ZW4gZXhhbXBsZTogYHN1bV9tdWx0cyhjKDMsNSksIDMwKWAuIFRoaXMgaXMgYSBnb29kIHRlc3QgYmVjYXVzZSBvbmUgcG9zc2libGUgZmFpbHVyZSBjb25kaXRpb24gd291bGQgYmUgYWRkaW5nIG11bHRpcGxlcyBvZiBtb3JlIHRoYW4gb25lIGZhY3RvciBtb3JlIHRoYW4gb25jZSAoMTUgd291bGQgYmUgY291bnRlZCB0d2ljZSBmb3IgMjEwKS4NCg0KYGBge3J9DQpzdW1fbXVsdHMoYygzLDUpLCAzMCkgIyBFeHBlY3QgMTk1DQpgYGANCg0KDQpOZXh0LCB3ZSB3aWxsIHRlc3QgYSBjYXNlIHdpdGggbm8gbXVsdGlwbGVzIGJ5IGNob29zaW5nIGBudW1zYCB3aGljaCBhcmUgZ3JlYXRlciB0aGFuIHRoZSBjaG9zZW4gbGltaXQuIA0KDQpgYGB7cn0NCnN1bV9tdWx0cyhjKDEwMSwxMDIpLCAzMCkgIyBFeHBlY3QgMA0KYGBgDQoNCk5leHQsIHdlIHdpbGwgdGVzdCBhIHZlY3RvciB3aXRoIGR1cGxpY2F0ZSB2YWx1ZXMsIHRob3VnaCB0aGlzIHNob3VsZG4ndCByYWlzZSBhbnkgbmV3IGZhaWx1cmUgY29uZGl0aW9ucywgYnV0IHdlIHdhbnQgdG8gYmUgc3VyZSBkdXBsaWNhdGVzIGRvbid0IGJyZWFrIGl0IGluIGFuIHVuZm9yc2VlbiB3YXkuIA0KDQpgYGB7cn0NCnN1bV9tdWx0cyhjKDMsIDMsIDUpLCAzMSkgIyBFeHBlY3QgMjI1DQpgYGANCg0KTmV4dCwgd2Ugd2lsbCBjaGVjayB3aGF0IGhhcHBlbnMgd2hlbiB3ZSBwYXNzIGluIGFuIGVtcHR5IHZlY3Rvci4gDQoNCmBgYHtyfQ0Kc3VtX211bHRzKGMoTlVMTCksIDMwKSAjIEV4cGVjdCAwDQpgYGANCg0KTmV4dCwgd2Ugd2lsbCB0ZXN0IHBhc3NpbmcgYSBsaW1pdCB0aGF0IGlzIGxlc3MgdGhhbiAxLg0KDQpgYGB7cn0NCnN1bV9tdWx0cyhjKDMsNSksIC0zMCkgIyBFeHBlY3QgMA0KYGBgDQoNCg0KDQojIyAyIHt9DQoNCiMjIyBDb2xsYXR6IENvbmplY3R1cmUgDQooNSBwdHMpIEdpdmVuIGFueSBwb3NpdGl2ZSBpbnRlZ2VyIG4sIGRlZmluZSAgDQoNClxbIA0KICAgIGYobikgOj0NCiAgICBcYmVnaW57Y2FzZXN9IA0KICAgICAgbi8yLCAmIFx2ZXJifGlmIHxuIFx2ZXJifCBpcyBldmVufCBcXA0KICAgICAgM24rMSwgJiBcdmVyYnxpZiB8biBcdmVyYnwgaXMgb2RkfA0KICAgXGVuZHtjYXNlc30NClxdDQoNClRoZSBbQ29sbGF0eiBjb25qZWN0dXJlXShodHRwczovL2VuLndpa2lwZWRpYS5vcmcvd2lraS9Db2xsYXR6X2NvbmplY3R1cmUpIHN0YXRlcyB0aGF0IHRoZSBzZXF1ZW5jZSANCg0KXFsgDQogICAgYV9pIDo9DQogICAgXGJlZ2lue2Nhc2VzfSANCiAgICAgIG4sICYgXHZlcmJ8aWYgfGk9MVxcDQogICAgICBmKGFfXHZlcmJ8aS0xfCksICYgXHZlcmJ8aWYgfGk+MQ0KICAgXGVuZHtjYXNlc30NClxdDQoNCmV2ZW50dWFsbHkgcmVhY2hlcyAxLiBXcml0ZSBhIGZ1bmN0aW9uIGBjb2xsYXR6X2xlbihuKWAgdGhhdCBkZXRlcm1pbmVzIHRoZSBmaXJzdCAkaSQgZm9yIHdoaWNoICRhX2k9MSQgZm9yIGEgZ2l2ZW4gJG4kLiANCg0KRm9yIGV4YW1wbGUsIHdoZW4gJG49MTckLCB0aGUgc2VxdWVuY2UgJGFfaSQgYmVnaW5zICQxNywgNTIsIDI2LCAxMywgNDAsIDIwLCAxMCwgNSwgMTYsIDgsIDQsIDIsIDEsIC4uLiQgYW5kICRhXzEzID0gMSQuIFRodXMsIGBjb2xsYXR6X2xlbigxNylgIHNob3VsZCByZXR1cm4gfn4xM35+IDEyLg0KDQojIyMgU29sdXRpb24NCg0KRmlyc3QsIHdlIHdpbGwgd3JpdGUgdGhlIGZ1bmN0aW9uIGl0c2VsZiwgYW5kIGNhbGwgaXQgYG5leHQubnVtKClgLiANCg0KYGBge3J9DQojIFRoZSBpbm5lciBmdW5jdGlvbg0KbmV4dC5udW0gPC0gZnVuY3Rpb24obil7DQogICAgaWYgKG4gJSUgMil7DQogICAgICAgIHJldHVybigzKm4rMSkNCiAgICB9ZWxzZXsNCiAgICAgICAgcmV0dXJuKG4vMikNCiAgICB9DQp9DQpgYGANCg0KV2UgY2FuIHF1aWNrbHkgdGVzdCBgbmV4dC5udW0oKWAgd2l0aCA0IGFuZCAzIHRvIGNoZWNrIHRoYXQgaXQgd29ya3MgZm9yIG9kZCBhbmQgZXZlbiBudW1iZXJzLiAgDQpgYGB7cn0NCm5leHQubnVtKDQpICMgRXhwZWN0IDINCm5leHQubnVtKDMpICMgRXhwZWN0IDEwDQpgYGAgIA0KDQpOZXh0LCB3ZSBidWlsZCB0aGUgZnVuY3Rpb24gdG8gZGV0ZXJtaW5lIGEgbnVtYmVyJ3MgQ29sbGF0eiBMZW5ndGggKG9yIGhlaWdodCkuDQoNCmBgYHtyfQ0KY29sbGF0el9sZW4gPC0gZnVuY3Rpb24obil7DQogICAgaWYgKG48MSl7cmV0dXJuKC0xKX0NCiAgICBudW0gPC0gbg0KICAgIGMubGVuIDwtIDANCiAgICB3aGlsZSAobnVtID4gMSl7DQogICAgICAgIG51bSA8LSBuZXh0Lm51bShudW0pDQogICAgICAgIGMubGVuIDwtIGMubGVuICsgMQ0KICAgIH0NCiAgICByZXR1cm4oYy5sZW4pDQp9DQoNCiMgY29sbGF0el9sZW4oOTQzKQ0KYGBgDQoNCiMjIyBUZXN0aW5nDQoNCkZvciB0ZXN0aW5nLCB3ZSB3aWxsIGFnYWluIHN0YXJ0IHdpdGggdGhlIGdpdmVuIGV4YW1wbGUuIEZvciB0aGUgQ29sbGF0eiBMZW5ndGggb2YgMTcsIHdlIGV4cGVjdCB+fjEzfn4gMTIgYW5kIHdlIGdldDogYHIgY29sbGF0el9sZW4oMTcpYA0KDQpOZXh0LCB3ZSB3aWxsIHRlc3QgYSBudW1iZXIgd2l0aCBhIGtub3duIENvbGxhdHogSGVpZ2h0IGZyb20gYSB0YWJsZSBpbiBhbiBpbnRlcmVzdGluZyBbcGFwZXJdKGh0dHBzOi8vd3d3LnNjaWVuY2VkaXJlY3QuY29tL3NjaWVuY2UvYXJ0aWNsZS9waWkvMDAxMjM2NVg5MzkwMjQwVD92aWElM0RpaHViKSBJIGNhbWUgYWNyb3NzIHRoYXQgZXhwbG9yZXMgdGhlIGludGVyZXN0aW5nIHBoZW5vbWVub24gb2Ygc3RyZXRjaGVzIG9mIG51bWJlcnMgd2l0aCBpZGVudGljYWwgQ29sbGF0eiBIZWlnaHRzLiBUaGUgZmlyc3Qgc3VjaCBzdHJldGNoIGxpc3RlZCBpcyB0aGUgc2V2ZW4gbnVtYmVycyBzdGFydGluZyB3aXRoIDk0MyB3aGljaCBhbGwgaGF2ZSBhIGhlaWdodCBvZiAzNi4NCg0KUnVubmluZyBvdXIgaW1wbGVtZW50YXRpb24gb24gOTQzLCB3ZSBnZXQgYSBoZWlnaHQgb2YgYHIgY29sbGF0el9sZW4oOTQzKWAgYXMgZXhwZWN0ZWQuDQoNCk5leHQgd2Ugd2lsbCB0ZXN0IGZvciBrbm93biBpbnZhbGlkIGlucHV0cywgMCBvciBhIG5lZ2F0aXZlIG51bWJlci4gV2UgaGF2ZSB3cml0dGVuIHRoaXMgaW1wbGVtZW50YXRpb24gdG8gcmV0dXJuIC0xIGZvciB0aGVzZSBjYXNlcyBzbyB3ZSBleHBlY3QgdGhpcyByZXN1bHQuIEZvciAwLCB3ZSBnZXQgYHIgY29sbGF0el9sZW4oMClgLCBmb3IgLTEwIHdlIGdldCBgciBjb2xsYXR6X2xlbigtMTApYC4NCg0KRmluYWxseSwgd2Ugd2lsbCB0ZXN0IHRoZSBmaXJzdCA5MSBwb3NpdGl2ZSBpbnRlZ2VycyBhZ2FpbnN0IGEga25vd24gbGlzdCBmb3VuZCBbaGVyZV0oaHR0cHM6Ly9vZWlzLm9yZy9BMDA2NTc3L2xpc3QpLg0KDQpgYGB7cn0NCiMgS25vd24gbGlzdA0Ka25vd243MiA8LSBjKDAsMSw3LDIsNSw4LDE2LDMsMTksNiwxNCw5LDksMTcsMTcsNCwxMiwyMCwyMCw3LCA3LDE1LDE1LDEwLDIzLDEwLDExMSwxOCwxOCwxOCwxMDYsNSwyNiwxMywxMywyMSwgMjEsMjEsMzQsOCwxMDksOCwyOSwxNiwxNiwxNiwxMDQsMTEsMjQsMjQsMjQsMTEsIDExLDExMiwxMTIsMTksMzIsMTksMzIsMTksMTksMTA3LDEwNyw2LDI3LDI3LDI3LCAxNCwxNCwxNCwxMDIsMjIpDQoNCiMgVGVzdCBsaXN0DQp0ZXN0NzIgPC0gcmVwKDAsIDcyKSAgICAgICAgICAgICAgICAjIEluaXRpYWxpemUgdmVjdG9yIG9mIDBzDQpmb3IgKGkgaW4gMTo3Mil7ICAgICAgICAgICAgICAgICAgICAjIExvb3AgdGhyb3VnaCBpbnRlZ2VycyB0byA3Mg0KICAgIHRlc3Q3MltpXSA8LSBjb2xsYXR6X2xlbihpKSAgICAgIyBTdG9yZSBoZWlnaHQgZm9yIGVhY2ggaW50ZWdlcg0KfSAgICANCg0KIyBDb21wYXJlIGxpc3RzDQpzdWNjZXNzIDwtIGlkZW50aWNhbCh0ZXN0NzIsIGtub3duNzIpDQpzdWNjZXNzDQpgYGANCg0KDQojIyAzIHt9DQoNCiMjIyBSZXZlcnNlDQoNCg0KYGBge3J9DQoNCmBgYA0KDQoNCg0KIyMgNCB7fQ0KDQojIyMgRHJvcA0KDQoNCmBgYHtyfQ0KDQpgYGANCg0KDQoNCiMjIDUge30NCg0KIyMjIEludGVyc2VjdA0KDQoNCmBgYHtyfQ0KDQpgYGANCg0KDQoNCiMjIDYge30NCg0KIyMjIEZpbHRlcg0KDQoNCmBgYHtyfQ0KDQpgYGANCg0KDQoNCiMjIDcge30NCg0KIyMjIEZpYm9uYWNjaQ0KDQoNCmBgYHtyfQ0KDQpgYGANCg0KDQoNCiMjIDgge30NCg0KIyMjIFNoaWZ0IFJpZ2h0DQoNCg0KYGBge3J9DQoNCmBgYA0KDQoNCg0KIyMgOSB7fQ0KDQojIyMgUmVtb3ZlIENvbnNlY3V0aXZlIER1cGVzDQoNCg0KYGBge3J9DQoNCmBgYA0KDQoNCg0KIyMgMTAge30NCg0KIyMjIEV2ZW4gRmlib25hY2NpDQoNCg0KYGBge3J9DQoNCmBgYA0KDQoNCg==</div>
 
 
 
@@ -316,7 +422,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("assignment_1.rmd.Rmd");
+  window.initializeSourceEmbed("assignment_1.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>

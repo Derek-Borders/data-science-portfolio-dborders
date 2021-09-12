@@ -1,0 +1,288 @@
+---
+title: "CSCI 385 - Introduction to Data Science"
+subtitle: "Introduction to R"
+author: "Derek Borders"
+date: "Last compiled on `r format(Sys.time(), '%m/%d/%y')`"
+output: 
+    html_document:
+        theme: sandstone        # Reduces eye strain
+        #toc: true               # Table of contents
+        #toc_float: true         # ^ in a sidebar
+        code_folding: show      # Collapsable code chunks
+        code_download: true     # Page contains code for reader to examine
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # default
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(comment = NA)
+options(digits = 2)
+
+library(Rcpp) # for Cpp
+```
+
+
+
+
+# {.tabset .tabset-fade .tabset-pills} 
+
+Solve the given problems from scratch and test each solution with 3-5 simple test cases showing that the solution behaves as expected. Target important edge cases.
+
+## 1 {}
+
+### Sum of Multiples  
+
+(5 pts) Write a function `sum_mults(nums, n)` that returns the sum of all multiples of values in the vector `nums` less than `n`. For example, `sum_mults(c(3,5), 30)` should return `195`. Assume that the elements of `nums` are positive. 
+
+### Solution
+
+The naive solution here will be to use nested loops to iterate over a sequence from 1 to n and add any value which is a multiple of any value in num.
+
+```{r}
+# Naive Solution (nested loop)
+
+sum_mults <- function(nums, n) {
+    if (n<1){return(0)}
+    sum <- 0
+    for (i in 1:n-1){
+        for (num in nums){
+            if (i %% num == 0){
+                sum <- sum + i
+                break
+            }
+        }
+    }
+    return(sum)
+}
+```  
+
+### Testing
+
+For test cases, we will first test the given example: `sum_mults(c(3,5), 30)`. This is a good test because one possible failure condition would be adding multiples of more than one factor more than once (15 would be counted twice for 210).
+
+```{r}
+sum_mults(c(3,5), 30) # Expect 195
+```
+
+
+Next, we will test a case with no multiples by choosing `nums` which are greater than the chosen limit. 
+
+```{r}
+sum_mults(c(101,102), 30) # Expect 0
+```
+
+Next, we will test a vector with duplicate values, though this shouldn't raise any new failure conditions, but we want to be sure duplicates don't break it in an unforseen way. 
+
+```{r}
+sum_mults(c(3, 3, 5), 31) # Expect 225
+```
+
+Next, we will check what happens when we pass in an empty vector. 
+
+```{r}
+sum_mults(c(NULL), 30) # Expect 0
+```
+
+Next, we will test passing a limit that is less than 1.
+
+```{r}
+sum_mults(c(3,5), -30) # Expect 0
+```
+
+
+
+## 2 {}
+
+### Collatz Conjecture 
+(5 pts) Given any positive integer n, define  
+
+\[ 
+    f(n) :=
+    \begin{cases} 
+      n/2, & \verb|if |n \verb| is even| \\
+      3n+1, & \verb|if |n \verb| is odd|
+   \end{cases}
+\]
+
+The [Collatz conjecture](https://en.wikipedia.org/wiki/Collatz_conjecture) states that the sequence 
+
+\[ 
+    a_i :=
+    \begin{cases} 
+      n, & \verb|if |i=1\\
+      f(a_\verb|i-1|), & \verb|if |i>1
+   \end{cases}
+\]
+
+eventually reaches 1. Write a function `collatz_len(n)` that determines the first $i$ for which $a_i=1$ for a given $n$. 
+
+For example, when $n=17$, the sequence $a_i$ begins $17, 52, 26, 13, 40, 20, 10, 5, 16, 8, 4, 2, 1, ...$ and $a_13 = 1$. Thus, `collatz_len(17)` should return ~~13~~ 12.
+
+### Solution
+
+First, we will write the function itself, and call it `next.num()`. 
+
+```{r}
+# The inner function
+next.num <- function(n){
+    if (n %% 2){
+        return(3*n+1)
+    }else{
+        return(n/2)
+    }
+}
+```
+
+We can quickly test `next.num()` with 4 and 3 to check that it works for odd and even numbers.  
+```{r}
+next.num(4) # Expect 2
+next.num(3) # Expect 10
+```  
+
+Next, we build the function to determine a number's Collatz Length (or height).
+
+```{r}
+collatz_len <- function(n){
+    if (n<1){return(-1)}
+    num <- n
+    c.len <- 0
+    while (num > 1){
+        num <- next.num(num)
+        c.len <- c.len + 1
+    }
+    return(c.len)
+}
+
+# collatz_len(943)
+```
+
+### Testing
+
+For testing, we will again start with the given example. For the Collatz Length of 17, we expect ~~13~~ 12 and we get: `r collatz_len(17)`
+
+Next, we will test a number with a known Collatz Height from a table in an interesting [paper](https://www.sciencedirect.com/science/article/pii/0012365X9390240T?via%3Dihub) I came across that explores the interesting phenomenon of stretches of numbers with identical Collatz Heights. The first such stretch listed is the seven numbers starting with 943 which all have a height of 36.
+
+Running our implementation on 943, we get a height of `r collatz_len(943)` as expected.
+
+Next we will test for known invalid inputs, 0 or a negative number. We have written this implementation to return -1 for these cases so we expect this result. For 0, we get `r collatz_len(0)`, for -10 we get `r collatz_len(-10)`.
+
+Finally, we will test the first 72 positive integers against a known list found [here](https://oeis.org/A006577/list).
+
+```{r}
+# Known list
+known72 <- c(0,1,7,2,5,8,16,3,19,6,14,9,9,17,17,4,12,20,20,7, 7,15,15,10,23,10,111,18,18,18,106,5,26,13,13,21, 21,21,34,8,109,8,29,16,16,16,104,11,24,24,24,11, 11,112,112,19,32,19,32,19,19,107,107,6,27,27,27, 14,14,14,102,22)
+
+# Test list
+test72 <- rep(0, 72)                # Initialize vector of 0s
+for (i in 1:72){                    # Loop through integers to 72
+    test72[i] <- collatz_len(i)     # Store height for each integer
+}    
+
+# Compare lists
+success <- identical(test72, known72)
+success
+```
+
+
+## 3 {}
+
+### Reverse  
+(5 pts) Write a function `reverse(v)` that reverses the vector `v`. So `reverse(c(1,2,3))` should return `c(3,2,1)`. `reverse` should return `NULL`, not `NA`, when `v` is `c()`.
+
+```{r}
+reverse <- function(v){
+    len <- length(v)
+    if (len < 2){return(v)}
+    for(i in 1:len/2){
+        start <- i
+        end <- (len +1)-1
+        temp <- v[i]
+        v[i] <- v[len-i+1]
+        v[len-i+1] <- temp
+    }
+}
+reverse(c())
+reverse(c('palindrome'))
+reverse(c(1,2))
+```
+
+
+
+## 4 {}
+
+### Drop
+
+
+```{r}
+
+```
+
+
+
+## 5 {}
+
+### Intersect
+
+
+```{r}
+
+```
+
+
+
+## 6 {}
+
+### Filter
+
+
+```{r}
+
+```
+
+
+
+## 7 {}
+
+### Fibonacci
+
+
+```{r}
+
+```
+
+
+
+## 8 {}
+
+### Shift Right
+
+
+```{r}
+
+```
+
+
+
+## 9 {}
+
+### Remove Consecutive Dupes
+
+
+```{r}
+
+```
+
+
+
+## 10 {}
+
+### Even Fibonacci
+
+
+```{r}
+
+```
+
+
