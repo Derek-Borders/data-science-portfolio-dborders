@@ -58,6 +58,15 @@ sum_mults <- function(nums, n) {
 }
 ```  
 
+```{r}
+
+l <- 1:n
+sum(l[sapply(l, function(x) any(x %% nums ==0))])
+
+
+```
+
+
 ### Testing
 
 For test cases, we will first test the given example: `sum_mults(c(3,5), 30)`. This is a good test because one possible failure condition would be adding multiples of more than one factor more than once (15 would be counted twice for 210).
@@ -260,6 +269,14 @@ reverse(c(1,2))
 
 
 ```{r}
+
+
+
+shift <- function(v,n){
+    len <- length(v)
+    n <- n %% len
+    v1 <- c(v[(len-n):len, (1:)])
+}
 
 ```
 
